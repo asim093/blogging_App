@@ -76,14 +76,15 @@ const Navbar = () => {
     };
 
     return (
-        <div className="navbar bg-[#6b41df] text-neutral-content flex justify-between px-12">
-            <h1 className="font-bold text-white text-2xl">Personal Blogging App</h1>
-            <div>
+        <div className="navbar bg-[#6b41df] text-neutral-content px-4 md:px-12 flex flex-wrap">
+            <h1 className="font-bold text-white text-lg md:text-2xl">Personal Blogging App</h1>
+
+            <div className="ml-auto flex items-center gap-4">
                 {isAuthenticated ? (
-                    <div className='flex items-center  justify-center gap-6'>
+                    <div className="flex items-center gap-2 md:gap-6">
                         <div className="relative">
                             <div className="avatar online cursor-pointer" onClick={toggleDropdown}>
-                                <div className="w-12 h-12 rounded-full border-2 border-white hover:border-blue-500 transition duration-300">
+                                <div className="w-8 h-8 md:w-12 md:h-12 rounded-full border-2 border-white hover:border-blue-500 transition duration-300">
                                     <img
                                         src={profileImage}
                                         alt="User Avatar"
@@ -92,7 +93,7 @@ const Navbar = () => {
                                 </div>
                             </div>
                             {dropdownOpen && (
-                                <ul className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg p-4 z-10">
+                                <ul className="absolute right-0 mt-2 w-36 md:w-48 bg-white rounded-lg shadow-lg p-4 z-10">
                                     <li className="py-2 hover:bg-blue-100 rounded-md transition duration-300">
                                         <Link to="/Allblog" className="text-gray-700 font-semibold block">All Blog</Link>
                                     </li>
@@ -109,26 +110,26 @@ const Navbar = () => {
                             )}
                         </div>
                         <Link
-                            className='bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300 shadow-md'
+                            className="bg-blue-600 text-white text-sm px-2 py-1 md:px-4 md:py-2 rounded-md hover:bg-blue-700 transition duration-300 shadow-md"
                             onClick={handleLogout}
                         >
                             Logout
                         </Link>
                     </div>
                 ) : pathname === '/Signup' ? (
-                    <Link className='btn' to="/Login">Login</Link>
+                    <Link className="btn" to="/Login">Login</Link>
                 ) : pathname === '/Login' ? (
-                    <Link className='btn' to="/Signup">Signup</Link>
+                    <Link className="btn" to="/Signup">Signup</Link>
                 ) : (
-                    <Link className='btn' to="/Login">Login</Link>
+                    <Link className="btn" to="/Login">Login</Link>
                 )}
 
-                <div className="relative ml-6">
+                <div className="relative ml-4 md:ml-6">
                     <button onClick={toggleTypographyDropdown} className="btn btn-sm">
                         Change Typography
                     </button>
                     {typographyDropdownOpen && (
-                        <ul className="absolute right-0 mt-2 w-48 bg-white  rounded-lg shadow-lg p-4 z-10">
+                        <ul className="absolute right-0 mt-2 w-36 md:w-48 bg-white rounded-lg shadow-lg p-4 z-10">
                             <li onClick={() => handleTypographyChange('font-sans')} className="py-2 text-accent-content hover:bg-blue-100 cursor-pointer">Sans</li>
                             <li onClick={() => handleTypographyChange('font-serif')} className="py-2 hover:bg-blue-100 text-accent-content cursor-pointer">Serif</li>
                             <li onClick={() => handleTypographyChange('font-mono')} className="py-2 hover:bg-blue-100 text-accent-content cursor-pointer">Monospace</li>
@@ -136,25 +137,24 @@ const Navbar = () => {
                         </ul>
                     )}
                 </div>
-                <label className="swap swap-rotate">
+
+                <label className="swap swap-rotate ml-4 md:ml-6">
                     <input
                         type="checkbox"
                         checked={darkmode}
                         onChange={toggleDarkMode}
                     />
-
                     {/* sun icon */}
                     <svg
-                        className="swap-off h-10 w-10 fill-current"
+                        className="swap-off h-6 w-6 md:h-10 md:w-10 fill-current"
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24">
                         <path
                             d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z" />
                     </svg>
-
                     {/* moon icon */}
                     <svg
-                        className="swap-on h-10 w-10 fill-current"
+                        className="swap-on h-6 w-6 md:h-10 md:w-10 fill-current"
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24">
                         <path
@@ -163,7 +163,8 @@ const Navbar = () => {
                 </label>
             </div>
         </div>
-    );
+
+    )
 };
 
 export default Navbar;

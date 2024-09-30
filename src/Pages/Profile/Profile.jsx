@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '../../Components/Navbar/Navbar';
 import { db, updateDocument } from '../../../Config/Firebase/firebasemethod';
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { getAuth, updateEmail, updatePassword } from 'firebase/auth';
+import { getAuth, updateEmail, updatePassword, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth';
 
 const Profile = () => {
     const auth = getAuth();
@@ -31,9 +31,9 @@ const Profile = () => {
                             setFormData({
                                 name: doc.data().name || '',
                                 email: doc.data().email || '',
-                                password: '', 
+                                password: '',
                             });
-                            setImagePreview(doc.data().profileImage || ''); 
+                            setImagePreview(doc.data().profileImage || '');
                         });
                     }
 
@@ -53,7 +53,7 @@ const Profile = () => {
         };
 
         fetchUserData();
-    }, [user]);
+    }, [user], userData);
 
     const handleEdit = () => {
         setIsEditing(true);
@@ -69,36 +69,64 @@ const Profile = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!user) {
             alert("User not authenticated!");
             return;
         }
 
         try {
+            const currentPassword = prompt("Please enter your current password to proceed:");
+            if (!currentPassword) {
+                alert("Password is required for authentication.");
+                return;
+            }
+
+            await signInWithEmailAndPassword(auth, user.email, currentPassword);
+
             const obj = {
                 name: formData.name,
-                email: formData.email,
             };
 
-            await updateDocument(obj, user.uid, "users");
+            const userCollectionRef = collection(db, "users");
+            const q = query(userCollectionRef, where("id", "==", user.uid));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                const docId = querySnapshot.docs[0].id; 
+                await updateDocument(obj, docId, "users"); 
+            }
 
             if (formData.email !== user.email) {
-                await updateEmail(user, formData.email);
-                await user.sendEmailVerification();
-                alert('Verification email sent. Please verify your new email address.');
+                await sendEmailVerification(user);
+                alert('A verification email has been sent to your new email address. Please verify it before the email can be updated.');
+                alert("Please log in again after verifying the new email to update the email in the system.");
+                return; 
             }
 
             if (formData.password) {
                 await updatePassword(user, formData.password);
+                alert('Password updated successfully!');
+                setFormData(prevData => ({ ...prevData, password: '' })); // Clear password field
             }
 
+            // Update the user state after editing
+            setUserData((prevData) => ({
+                ...prevData,
+                name: formData.name,
+            }));
+
             setIsEditing(false);
-            alert('Profile updated successfully!');
         } catch (error) {
-            console.error("Error updating profile:", error.message);
-            alert('Failed to update profile. ' + error.message);
+            console.error("Error updating profile:", error);
+            alert("Error updating profile: " + error.message);
         }
     };
+
+
+
+
+
 
     return (
         <>
@@ -110,7 +138,7 @@ const Profile = () => {
                         <div className="flex items-center mb-4">
                             <img
                                 src={imagePreview || userData?.profileImage || 'https://tse2.mm.bing.net/th?id=OIP.dbdjMXeXeids14Gw4FIKkgHaEK&pid=Api&P=0&h=220'}
-                                alt="User Avatar" 
+                                alt="User Avatar"
                                 className="w-16 h-16 rounded-full border-2 border-blue-500"
                             />
                             <div className="ml-4">
@@ -148,38 +176,37 @@ const Profile = () => {
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-4">
                                     <label className="block mb-2">Name:</label>
-                                    <input 
-                                        type="text" 
-                                        name="name" 
-                                        value={formData.name} 
-                                        onChange={handleChange} 
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
                                         className="border rounded w-full p-2"
                                     />
                                 </div>
                                 <div className="mb-4">
                                     <label className="block mb-2">Email:</label>
-                                    <input 
-                                        type="email" 
-                                        name="email" 
-                                        value={formData.email} 
-                                        onChange={handleChange} 
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
                                         className="border rounded w-full p-2"
                                     />
                                 </div>
                                 <div className="mb-4">
-                                    <label className="block mb-2">Password:</label>
-                                    <input 
-                                        type="password" 
-                                        name="password" 
-                                        value={formData.password} 
-                                        onChange={handleChange} 
+                                    <label className="block mb-2">Password (leave blank to keep current):</label>
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleChange}
                                         className="border rounded w-full p-2"
-                                        placeholder="Leave blank to keep current password"
                                     />
                                 </div>
                                 <div className="flex justify-between">
-                                    <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300">Save</button>
-                                    <button type="button" onClick={() => setIsEditing(false)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300">Cancel</button>
+                                    <button type="button" onClick={() => setIsEditing(false)} className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400 transition duration-300">Cancel</button>
+                                    <button type="submit" className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition duration-300">Save Changes</button>
                                 </div>
                             </form>
                         </div>

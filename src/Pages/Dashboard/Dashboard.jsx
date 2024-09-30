@@ -26,6 +26,10 @@ const Dashboard = () => {
         setIsAuthenticated(true);
     }, [])
 
+
+
+
+
     const fetchUserProfile = async (uid) => {
         try {
             const q = query(collection(db, "users"), where("id", "==", uid));
@@ -65,9 +69,9 @@ const Dashboard = () => {
     };
 
 
-    useEffect(() => {
-        fetchData();
-    }, [currentUser]);
+    // useEffect(() => {
+    //     fetchData();
+    // }, [currentUser]);
 
     const deletedata = async (docId) => {
         console.log(Isdata);
@@ -83,16 +87,20 @@ const Dashboard = () => {
     };
 
     const updatedata = async (id) => {
-        const updatedTitle = prompt("Enter Updated Title");
-        const updateddescription = prompt("Enter Updated description");
+        const updatedTitle = prompt("Enter Updated Title").trim();
+        const updateddescription = prompt("Enter Updated description").trim();
 
+
+        if(updatedTitle || updateddescription === "" ){
+            alert("Title and Description cannot be empty.");
+            return;
+        }
         const updatedval = {
             title: updatedTitle,
             description: updateddescription,
         }
         try {
             const editdata = await updateDocument(updatedval, id, 'Blogs');
-            fetchData();
             console.log(editdata);
             swal("updated!", "Your blog post has been updated.", "success");
         } catch (error) {
@@ -102,6 +110,11 @@ const Dashboard = () => {
 
         }
     }
+    useEffect(() => {
+        if (currentUser) {
+            fetchData();
+        }
+    }, [currentUser, updatedata]);
 
     const onSubmit = async (data) => {
         try {
